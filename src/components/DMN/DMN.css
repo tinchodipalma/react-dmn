@@ -1,0 +1,8 @@
+.DMN__DiagramContainer {
+  width: 100vw;
+  height: 100vh;
+}
+
+.DMN__CustomView {
+  display: none;
+}
