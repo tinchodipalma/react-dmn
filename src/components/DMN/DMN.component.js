@@ -39,15 +39,8 @@ const DMN = ({ definition, isModeler, container, decisionTable, viewsSelector })
 
     dmnInstance.on('views.changed', (event) => {
       const view = event.activeView;
-      dispatch(updateDMNCurrent({
-        view,
-      }));
-    });
 
-    dmnInstance.importXML(definition, (err) => {
-      if (err) {
-        console.log('DMN Error Rendering:', err);
-      } else {
+      if (view.type === 'drd') {
         const viewer = dmnInstance.getActiveViewer();
 
         dispatch(updateDMNCurrent({ viewer }));
@@ -58,9 +51,17 @@ const DMN = ({ definition, isModeler, container, decisionTable, viewsSelector })
         // zoom to fit full viewport
         canvas.zoom('fit-viewport');
       }
+
+      dispatch(updateDMNCurrent({
+        view,
+      }));
     });
 
-    return () => { };
+    dmnInstance.importXML(definition, (err) => {
+      if (err) {
+        console.log('DMN Error Rendering:', err);
+      }
+    });
   }, []);
 
   const getViewTypes = () => {
