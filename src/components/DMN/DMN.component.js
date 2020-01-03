@@ -17,7 +17,7 @@ import 'dmn-js/dist/assets/dmn-font/css/dmn.css';
 
 import './DMN.css';
 
-const DMN = ({ definition, isModeler, container, decisionTable, viewsSelector }) => {
+const DMN = ({ definition, isModeler, container, children }) => {
   if (!definition) {
     return null;
   }
@@ -86,11 +86,11 @@ const DMN = ({ definition, isModeler, container, decisionTable, viewsSelector })
     getViewTypes,
   };
 
+  const currentViewType = state.current.view ? state.current.view.type : 'noType';
   const dmnClassNames = classnames(
     'DMN__DiagramContainer',
     {
-      [`DMN__CurrentView__${state.current.view}`]: state.current.view,
-      'DMN__CustomView': state.current.view && state.current.view.type === 'decisionTable' && decisionTable,
+      [`DMN__CurrentView__${currentViewType}`]: state.current.view,
     }
   );
 
@@ -98,14 +98,9 @@ const DMN = ({ definition, isModeler, container, decisionTable, viewsSelector })
     <DMNContext.Provider value={dmnContextProviderValue}>
       <div className="DMN__Container">
         <div id={container} className={dmnClassNames} />
-        {!!viewsSelector &&
-          <div className="DMN__ViewsSelector">
-            {viewsSelector}
-          </div>
-        }
-        {!!decisionTable && state.current.view && state.current.view.type === 'decisionTable' &&
-          <div className="DMN__DecisionTable">
-            {decisionTable}
+        {!!state.dmn && !!state.current.view && !!children &&
+          <div className="DMN__ChildrenContainer">
+            {children}
           </div>
         }
       </div>
@@ -114,15 +109,13 @@ const DMN = ({ definition, isModeler, container, decisionTable, viewsSelector })
 };
 
 DMN.defaultProps = {
+  children: null,
   isModeler: false,
-  decisionTable: null,
-  viewsSelector: null,
 };
 
 DMN.propTypes = {
+  children: PropTypes.node,
   isModeler: PropTypes.bool,
-  decisionTable: PropTypes.any,
-  viewsSelector: PropTypes.any,
   container: PropTypes.string.isRequired,
   definition: PropTypes.string.isRequired,
 };
