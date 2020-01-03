@@ -1,4 +1,4 @@
-import React, { useReducer, useEffect } from 'react';
+import React, { useReducer, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 import DmnViewer from 'dmn-js';
@@ -81,10 +81,26 @@ const DMN = ({ definition, isModeler, container, children }) => {
     }, {});
   };
 
-  const dmnContextProviderValue = {
-    ...state,
-    getViewTypes,
+  const getXML = async () => {
+    return new Promise((resolve, reject) => {
+      state.dmn.saveXML((err, xml) => {
+        if (err) {
+          reject(err);
+        }
+        resolve(xml);
+      });
+    });
   };
+
+  const isReady = useMemo(() => (!!state.dmn && !!state.current.view), [state.dmn, state.current.view]);
+
+  const dmnContextProviderValue = useMemo(() => ({
+    ...state,
+    isReady,
+    getViewTypes,
+    getXML,
+    // eslint-disable-next-line
+  }), [state]);
 
   const currentViewType = state.current.view ? state.current.view.type : 'noType';
   const dmnClassNames = classnames(
@@ -98,7 +114,7 @@ const DMN = ({ definition, isModeler, container, children }) => {
     <DMNContext.Provider value={dmnContextProviderValue}>
       <div className="DMN__Container">
         <div id={container} className={dmnClassNames} />
-        {!!state.dmn && !!state.current.view && !!children &&
+        {isReady && !!children &&
           <div className="DMN__ChildrenContainer">
             {children}
           </div>
